@@ -18,8 +18,6 @@ import javax.servlet.http.HttpServletResponse;
 public class PaisesServlet extends HttpServlet {
 
     Map<String, String> paises;
-    String cores [];
-    int i = 0;
 
     public Map PaisesServlet() {
         Map<String, String> p = new HashMap<>();
@@ -34,7 +32,7 @@ public class PaisesServlet extends HttpServlet {
     
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    
+        Map<String, ArrayList<String>> cores = new HashMap<>();
         resp.setContentType("text/html;charset=UTF-8");
         String comando = req.getParameter("comando");
         try (PrintWriter out = resp.getWriter()) {
@@ -47,47 +45,37 @@ public class PaisesServlet extends HttpServlet {
             out.println("<body>");
             out.println("<h1> Países </h1>");
             out.println("<dl>");
-            for (Map.Entry<String, String> pais : paises.entrySet())
+            if ("cor".equals(comando))
             {
-                out.println("<dt> " + pais.getKey() + "</dt>");
-                out.println("<dd> " + pais.getValue() + "</dt>");
-            }
-            for (Map.Entry<String, String> pais : paises.entrySet())
-            {
-                Boolean colocar = false;
-                cores = new String [paises.size()]; 
-                for (i = 0; i < paises.size(); i++)
-                {
-                    if (cores[i].equals(pais.getValue()))
+                for (Map.Entry<String, String> pais : paises.entrySet()) {
+                    if (!cores.containsKey(pais.getValue())) 
                     {
-                        colocar = true;
+                        ArrayList<String> corPais = new ArrayList();
+                        corPais.add(pais.getKey());
+                        cores.put(pais.getValue(), corPais);
+                    } 
+                    else 
+                    {
+                        cores.get(pais.getValue()).add(pais.getKey());
                     }
                 }
-                if (colocar)
+                for (Map.Entry<String, ArrayList<String>> cor : cores.entrySet())
                 {
-                    colocar = false;
-                }
-                else
-                {
-                    for (i = 0; i < paises.size(); i++)
-                    {
-                        if (cores[i] == null)
-                            cores[i] = pais.getValue();
-                    }
+                     out.println("<dt>" + cor.getKey() + "</dt>");
+                     for (String pais : cor.getValue()) 
+                    out.println("<dd>" + pais + "</dd>");
                 }
             }
-            for (i = 0; i < paises.size(); i++)
+            else
             {
                 for (Map.Entry<String, String> pais : paises.entrySet())
                 {
-                    out.println("<dt> " + cores[i] + "</dt>");
-                    if (cores[i].equals(pais.getValue()))
-                    {
-                        out.println("<dd> " + pais.getKey() + "</dd>");
-                    }
+                    out.println("<dt> " + pais.getKey() + "</dt>");
+                    out.println("<dd> " + pais.getValue() + "</dt>");
                 }
             }
             out.println("</dl>");
+            out.println("<p> <a href='?comando=cor'> Juntar por cores </a> </p>");
             out.println("</body>");
             out.println("</html>");
         }
